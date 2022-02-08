@@ -1,28 +1,79 @@
 <?php
+/**
+ * StatsCollector class.
+ *
+ * @package StatsCollector
+ *
+ * @since 1.0.0
+ */
 
-$curl = curl_init();
+namespace StatsCollector;
 
-curl_setopt_array($curl, array(
-	CURLOPT_URL => 'https://api.wordpress.org/plugins/info/1.0/forminator.json',
-	CURLOPT_RETURNTRANSFER => true,
-	CURLOPT_ENCODING => '',
-	CURLOPT_MAXREDIRS => 10,
-	CURLOPT_TIMEOUT => 0,
-	CURLOPT_FOLLOWLOCATION => true,
-	CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-	CURLOPT_CUSTOMREQUEST => 'GET',
-));
+use Exception;
+use stdClass;
 
-$response = curl_exec($curl);
+/**
+ * StatsCollector class.
+ */
+class StatsCollector {
 
-curl_close($curl);
+	/**
+	 * Fetch plugin stats via WordPress API.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string  $plugin
+	 *
+	 * @return stdClass
+	 * @throws Exception
+	 */
+	private function fetch_stats( string $plugin ) : stdClass {
 
-$response = json_decode( $response );
+		$curl = curl_init();
 
-if ( ! isset( $response->ratings ) ) {
-	return;
+		curl_setopt_array( $curl, array(
+			CURLOPT_URL            => "https://api.wordpress.org/plugins/info/1.0/$plugin.json",
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING       => '',
+			CURLOPT_MAXREDIRS      => 10,
+			CURLOPT_TIMEOUT        => 0,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST  => 'GET',
+		) );
+
+		$response = curl_exec( $curl );
+
+		curl_close( $curl );
+
+		$response = json_decode( $response );
+
+		if ( ! isset( $response->ratings ) ) {
+			throw new Exception( "Rating data not available for plugin: $plugin", 400 );
+		}
+
+		return $response->ratings;
+
+	}
+
+	/**
+	 * Run collector.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function run() {
+
+		$ratings = $this->fetch_stats( 'forminator' );
+
+		foreach ( $ratings as $stars => $count ) {
+			$a = 1;
+		}
+
+	}
+
 }
 
-foreach ( $response->ratings as $stars => $count ) {
-	$a = 1;
-}
+$collector = new StatsCollector();
+$collector->run();
