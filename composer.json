@@ -1,0 +1,10 @@
+{
+    "require": {
+<<<<<<< Updated upstream
+      "google/apiclient": "^2.0",
+=======
+        "google/apiclient": "^2.0",
+>>>>>>> Stashed changes
+      "ext-curl": "*"
+    }
+}
